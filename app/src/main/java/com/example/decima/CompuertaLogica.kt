@@ -16,6 +16,9 @@ import com.example.decima.databinding.ActivityCompuertaLogicaBinding
 class CompuertaLogica : AppCompatActivity() {
 
     private lateinit var binding: ActivityCompuertaLogicaBinding
+    private var estadoA = false
+    private var estadoB = false
+    private var compuerta = "AND"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,11 +27,26 @@ class CompuertaLogica : AppCompatActivity() {
         binding = ActivityCompuertaLogicaBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val compuerta = intent.getStringExtra("Compuerta") ?: "AND"
+        compuerta = intent.getStringExtra("Compuerta") ?: "AND"
         mostrarImagen(compuerta)
 
         val tabla = obtenerTablaVerdad(compuerta)
         agregarFilas(tabla, compuerta)
+
+
+        binding.cbA?.setOnCheckedChangeListener { _, isChecked ->
+
+            estadoA = isChecked
+            actualizarLED()
+
+        }
+
+        binding.cbB?.setOnCheckedChangeListener { _, isChecked ->
+
+            estadoB = isChecked
+            actualizarLED()
+
+        }
 
     }
 
@@ -155,6 +173,34 @@ class CompuertaLogica : AppCompatActivity() {
 
     }
 
+
+
+    private fun actualizarLED() {
+
+        val resultado = when (compuerta) {
+
+            "AND" -> estadoA && estadoB
+            "OR" -> estadoA || estadoB
+            "XOR" -> estadoA xor estadoB
+            "NAND" -> !(estadoA && estadoB)
+            "NOR" -> !(estadoA || estadoB)
+            "NOT" -> !estadoA
+            else -> false
+
+        }
+
+        // Cambiar imagen del LED
+        if (resultado) {
+
+            binding.imageViewLED?.setImageResource(R.drawable.led_verde)
+
+        } else {
+
+            binding.imageViewLED?.setImageResource(R.drawable.led_rojo)
+
+        }
+
+    }
 
     
     private fun obtenerTablaVerdad(tipo: String): List<List<Int>> {
